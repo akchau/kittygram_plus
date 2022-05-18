@@ -7,6 +7,7 @@ from .models import Achievement, Cat, Owner, AchievementCat, CHOICES
 
 
 class Hex2NameColor(serializers.Field):
+    """Класс который по коду цвета возвращает его название."""
     def to_representation(self, value):
         return value
     
@@ -19,6 +20,7 @@ class Hex2NameColor(serializers.Field):
 
 
 class AchievementSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Achivement."""
     achivement_name = serializers.CharField(source='name')
     class Meta:
         model = Achievement
@@ -26,15 +28,17 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 
 class CatSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Cat."""
     # owner = serializers.StringRelatedField(read_only=True)
     achievements = AchievementSerializer(many=True, required=False)
     age = serializers.SerializerMethodField()
-    color = Hex2NameColor()
+    color = serializers.ChoiceField(choices=CHOICES)
     class Meta:
         model = Cat
         fields = ('id', 'name', 'color', 'birth_year', 'owner', 'achievements', 'age')
     
     def create(self, validated_data):
+        """Метод для добавления достижений котика, если они переданы вместе с post-запросом."""
         if 'achievements' not in self.initial_data:
             # То создаём запись о котике без его достижений
             cat = Cat.objects.create(**validated_data)
@@ -60,6 +64,7 @@ class CatSerializer(serializers.ModelSerializer):
 
 
 class OwnerSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели владельца."""
     cats = serializers.StringRelatedField(many=True, read_only=True)
     class Meta:
         model = Owner
