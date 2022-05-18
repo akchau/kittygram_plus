@@ -1,3 +1,13 @@
+"""
+Доступные адреса
+{
+    "cats": "http://127.0.0.1:8000/cats/",
+    "owners": "http://127.0.0.1:8000/owners/"
+}
+
+В комменариях адреса на другие реализации API
+
+"""
 from django.urls import include, path
 
 from rest_framework.routers import DefaultRouter
@@ -14,7 +24,7 @@ urlpatterns = [
 ]
 
 """
-   path('cats/', ..., name='api-root'), - есть только у Default
+   path('cats/', ..., name='api-root'), - есть только у Default. Показывает все эндпоинты.
    path('cats/', ..., name='cat-list'),
    path('cats/<int:pk>/', ..., name='cat-detail')
    через basename в роутере можно переопределить префикс

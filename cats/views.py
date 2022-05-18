@@ -1,3 +1,11 @@
+"""
+Возможные реализации API
+Возможные дженерики:
+ListAPIView - Только Get-запросы. Возвращает один объект.
+CreateAPIView - Только Post-запросы. Создает новый объект.
+UpdateAPIView - Только Put и Patch-запросы. Изменяет объект.
+DestroyAPIView - Только Delete-запросы. Удаляет объект.
+"""
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -14,42 +22,37 @@ from .serializers import CatSerializer, OwnerSerializer
 
 
 class CatViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Сats."""
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
 
 
 class OwnerViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Сats."""
     queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
 
-"""
-    ListAPIView - Только Get-запросы. Возвращает один объект.
-    CreateAPIView - Только Post-запросы. Создает новый объект.
-    UpdateAPIView - Только Put и Patch-запросы. Изменяет объект.
-    DestroyAPIView - Только Delete-запросы. Удаляет объект.
-"""
-
-class CatViewSet(viewsets.ModelViewSet):
-    queryset = Cat.objects.all()
-    serializer_class = CatSerializer
-
 
 class CatReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    """Джерик для модели Cat. Только чтение."""
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
 
 
 class GenericAPICat(ListCreateAPIView):
+    """Джерик для модели Cat."""
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
 
 
 class GenericAPICatDetail(RetrieveUpdateDestroyAPIView):
+    """Джерик для конкретной модели Cat."""
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
 
 
 class APICat(APIView):
+    """Низкоуровневый view-class для списка записей и добавления записи."""
     def get(self, request):
         cats = Cat.objects.all()
         serializer = CatSerializer(cats, many=True)
@@ -63,6 +66,7 @@ class APICat(APIView):
 
 
 class APICatDetail(APIView):
+    """Низкоуровневый view-class для конкретной записи."""
     def get(self, request, pk):
         cat = get_object_or_404(Cat, pk=pk)
         serializer = CatSerializer(cat)
@@ -89,6 +93,7 @@ class APICatDetail(APIView):
 
 @api_view(['GET', 'POST'])
 def cat_list(request):
+    """view-функция для API."""
     if request.method == 'POST':
         serializer = CatSerializer(data=request.data, many=True)
         if serializer.is_valid():
@@ -102,6 +107,7 @@ def cat_list(request):
 
 @api_view(['GET', 'POST'])
 def hello(request):
+    """View-функция без работы с моделью. Возвращает запрос"""
     if request.method == 'POST':
         return Response({'message': 'Получены данные', 'data': request.data})
     return Response({'message': 'Это был GET-запрос!'})
