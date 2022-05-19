@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -26,6 +27,14 @@ class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
 
+    @action(detail=False, url_path='recent-white-cats')
+    def recent_white_cats(self, request):
+        """Нестандартное поведение вьюсета.
+        Возвращает 5 последних добавленых белых котов.
+        """
+        cats = Cat.objects.filter(color='White')[:5]
+        serializer = self.get_serializer(cats, many=True)
+        return Response(serializer.data)
 
 class OwnerViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Сats."""
