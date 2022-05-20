@@ -5,9 +5,11 @@ ListAPIView - Только Get-запросы. Возвращает один о�
 CreateAPIView - Только Post-запросы. Создает новый объект.
 UpdateAPIView - Только Put и Patch-запросы. Изменяет объект.
 DestroyAPIView - Только Delete-запросы. Удаляет объект.
+ReadOnlyModelViewSet - вьюсет получение списка или одного объекта.
 """
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework import mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -19,13 +21,30 @@ from .models import Cat
 from .serializers import CatSerializer
 
 from .models import Cat, Owner
-from .serializers import CatSerializer, OwnerSerializer
+from .serializers import CatSerializer, OwnerSerializer, CatListSerializer
+
+
+class UpdateDeleteViewSet(
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet):
+    """Вьюсет для примера. Может только обновить модель или удалить."""
+    pass
+
+class CreateRetrieveViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                            viewsets.GenericViewSet):
+    """Вьюсет получает объект и возвращает в get-запросе"""
+    pass 
+
+
+class LiqhtCatViewSet(CreateRetrieveViewSet):
+    queryset = Cat.objects.all()
+    serializer_class = CatSerializer
 
 
 class CatViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Сats."""
     queryset = Cat.objects.all()
-    serializer_class = CatSerializer
 
     @action(detail=False, url_path='recent-white-cats')
     def recent_white_cats(self, request):
@@ -35,6 +54,16 @@ class CatViewSet(viewsets.ModelViewSet):
         cats = Cat.objects.filter(color='White')[:5]
         serializer = self.get_serializer(cats, many=True)
         return Response(serializer.data)
+    
+    def get_serializer_class(self):
+        """Функция определяет в каком 
+        сериализаторе будет обрабатываться объект.
+        Чтобы переопределить нужно убрать явное обозначение
+        сериализатора и добавить эту функцию."""
+        if self.action == 'list':
+            return CatListSerializer
+        return CatSerializer
+
 
 class OwnerViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Сats."""

@@ -27,6 +27,16 @@ class AchievementSerializer(serializers.ModelSerializer):
         fields = ('id', 'achivement_name')
 
 
+
+class CatListSerializer(serializers.ModelSerializer):
+    """Дополнительный сериализатор для модели Cats"""
+    color = serializers.ChoiceField(choices=CHOICES)
+    
+    class Meta:
+        model = Cat
+        fields = ('id', 'name', 'color')
+
+
 class CatSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Cat."""
     # owner = serializers.StringRelatedField(read_only=True)
