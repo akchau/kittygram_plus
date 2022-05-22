@@ -139,7 +139,7 @@ def cat_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     cats = Cat.objects.all()
-    serializer = CatSerializer(cats, many=True, partial=True)
+    serializer = CatSerializer(cats, many=True)
     return Response(serializer.data)
 
 
