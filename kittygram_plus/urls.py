@@ -13,7 +13,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from cats.views import CatViewSet, OwnerViewSet, cat_list, APICat, APICatDetail, GenericAPICat, GenericAPICatDetail, LiqhtCatViewSet
-# from rest_framework.authtoken import views
+from rest_framework.authtoken import views
 
 
 router = DefaultRouter()
@@ -23,9 +23,9 @@ router.register(r'mycats', LiqhtCatViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('api-token-auth/', views.obtain_auth_token),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    path('api-token-auth/', views.obtain_auth_token), # путь для аутентификации по AuthTokken
+    path('auth/', include('djoser.urls')), # путь для аутентификации по Djoser+JWT
+    path('auth/', include('djoser.urls.jwt')), # путь для аутентификации по Djoser+JWT
 ]
 
 """

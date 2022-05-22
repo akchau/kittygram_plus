@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'rest_framework.authtoken',
+    'rest_framework.authtoken', # приложение для авторизации по AuthToken
     'cats.apps.CatsConfig',
     'djoser',
 ]
@@ -132,17 +132,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
+        'rest_framework.permissions.IsAuthenticated', # запрет для запросов неавторизованных пользователей
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication', - аутентификация по AuthToken
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # аутентификация по Djoser + JWT
     ],
 }
 
 
 SIMPLE_JWT = {
-    # Устанавливаем срок жизни токена
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    """Минимально необходимые настройки для модуля Simple JWT"""
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1), # Устанавливаем срок жизни токена
+    'AUTH_HEADER_TYPES': ('Bearer',), # заголовок который будет в Authorization
 }
