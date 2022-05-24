@@ -9,26 +9,31 @@
 
 """
 from django.urls import include, path
+from django.contrib import admin
 
 from rest_framework.routers import DefaultRouter
 
-from cats.views import CatViewSet, OwnerViewSet, cat_list, APICat, APICatDetail, GenericAPICat, GenericAPICatDetail, LiqhtCatViewSet
-from rest_framework.authtoken import views
+from cats import views # вью-функции приложения cats
+from rest_framework.authtoken.views import obtain_auth_token # вью-функция для получения токена
+
 
 
 router = DefaultRouter()
-router.register('cats', CatViewSet)
-router.register('owners', OwnerViewSet)
-router.register(r'mycats', LiqhtCatViewSet)
+router.register(r'cats', views.CatViewSet)
+# router.register(r'owners', views.OwnerViewSet)
+router.register(r'achivement', views.AchievementViewSet)
+# router.register(r'mycats', views.LiqhtCatViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api-token-auth/', views.obtain_auth_token), # путь для аутентификации по AuthTokken
+    path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_auth_token), # путь для аутентификации по AuthTokken
     path('auth/', include('djoser.urls')), # путь для аутентификации по Djoser+JWT
     path('auth/', include('djoser.urls.jwt')), # путь для аутентификации по Djoser+JWT
 ]
 
-"""
+'''
    path('cats/', ..., name='api-root'), - есть только у Default. Показывает все эндпоинты.
    path('cats/', ..., name='cat-list'),
    path('cats/<int:pk>/', ..., name='cat-detail')
@@ -38,4 +43,4 @@ urlpatterns = [
    path('cats/', GenericAPICat.as_view()),
    path('cats/', APICat.as_view()),
    path('cats/', cat_list),
-"""
+'''

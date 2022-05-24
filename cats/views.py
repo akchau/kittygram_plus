@@ -8,22 +8,20 @@ DestroyAPIView - Только Delete-запросы. Удаляет объект
 ReadOnlyModelViewSet - вьюсет получение списка или одного объекта.
 """
 from rest_framework import viewsets
-from rest_framework import status
-from rest_framework import mixins
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-
-from .models import Cat
-from .serializers import CatSerializer
-
-from .models import Cat, Owner
-from .serializers import CatSerializer, OwnerSerializer, CatListSerializer
+# from rest_framework import status # библиотека со статусами
+# from rest_framework import mixins
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework.decorators import action
+# from rest_framework.views import APIView
+# from django.shortcuts import get_object_or_404
+# from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 
+from .models import Cat, Achievement, User # Owner
+from .serializers import CatSerializer, AchievementSerializer, UserSerializer #OwnerSerializer, CatListSerializer, 
+
+'''
 class UpdateDeleteViewSet(
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
@@ -40,12 +38,27 @@ class CreateRetrieveViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
 class LiqhtCatViewSet(CreateRetrieveViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
-
+'''
 
 class CatViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Сats."""
     queryset = Cat.objects.all()
+    serializer_class = CatSerializer
 
+    def perform_create(self, serializer):
+        """Хук, который позволяет переписать
+        поведение при сохранении записи
+        """
+        serializer.save(owner=self.request.user)
+    
+    def perform_update(self, serializer):
+        """Хук, который позволяет переписать
+        поведение при обновлении записи
+        """
+        serializer.save(owner=self.request.user)
+
+
+'''
     @action(detail=False, url_path='recent-white-cats')
     def recent_white_cats(self, request):
         """Нестандартное поведение вьюсета.
@@ -54,7 +67,7 @@ class CatViewSet(viewsets.ModelViewSet):
         cats = Cat.objects.filter(color='White')[:5]
         serializer = self.get_serializer(cats, many=True)
         return Response(serializer.data)
-    
+
     def get_serializer_class(self):
         """Функция определяет в каком 
         сериализаторе будет обрабатываться объект.
@@ -63,14 +76,30 @@ class CatViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return CatListSerializer
         return CatSerializer
+'''
 
 
-class OwnerViewSet(viewsets.ModelViewSet):
-    """Вьюсет для модели Сats."""
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет пользователя.
+    Унаследован от ReadOnlyModelViewSet.
+    Чтобы пользователи не могли изменять данные друг друга
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+'''
+class OwnerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
+'''
 
+class AchievementViewSet(viewsets.ModelViewSet):
+    queryset = Achievement.objects.all()
+    serializer_class = AchievementSerializer
 
+'''
 class CatReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     """Джерик для модели Cat. Только чтение."""
     queryset = Cat.objects.all()
@@ -149,3 +178,5 @@ def hello(request):
     if request.method == 'POST':
         return Response({'message': 'Получены данные', 'data': request.data})
     return Response({'message': 'Это был GET-запрос!'})
+
+'''
