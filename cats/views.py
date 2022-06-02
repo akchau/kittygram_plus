@@ -8,6 +8,7 @@ DestroyAPIView - Только Delete-запросы. Удаляет объект
 ReadOnlyModelViewSet - вьюсет получение списка или одного объекта.
 """
 from rest_framework import viewsets
+from rest_framework import permissions
 # from rest_framework import status # библиотека со статусами
 # from rest_framework import mixins
 # from rest_framework.decorators import api_view
@@ -19,7 +20,14 @@ from rest_framework import viewsets
 
 
 from .models import Cat, Achievement, User # Owner
-from .serializers import CatSerializer, AchievementSerializer, UserSerializer #OwnerSerializer, CatListSerializer, 
+from .serializers import CatSerializer, AchievementSerializer, UserSerializer #OwnerSerializer, CatListSerializer
+from .permissions import OwnerOrReadOnly, ReadOnly
+from rest_framework.throttling import AnonRateThrottle
+from .throttling import WorkingHoursRateThrottle
+from rest_framework.pagination import LimitOffsetPagination
+from .pagination import CatsPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 '''
 class UpdateDeleteViewSet(
@@ -40,10 +48,22 @@ class LiqhtCatViewSet(CreateRetrieveViewSet):
     serializer_class = CatSerializer
 '''
 
+
 class CatViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели Сats."""
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
+    permission_classes = (OwnerOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
+    #throttle_classes = (AnonRateThrottle, WorkingHoursRateThrottle)
+    #throttle_scope = 'low_request'
+    # pagination_class = LimitOffsetPagination
+    pagination_class = CatsPagination
+    pagination_class = None
+    filterset_fields = ('color', 'birth_year')
+    search_fields = ('name', 'achievements__name', 'owner__username')
+    ordering_fields = ('name',)
+    ordering = ('birth_year',)
 
     def perform_create(self, serializer):
         """Хук, который позволяет переписать
@@ -56,6 +76,11 @@ class CatViewSet(viewsets.ModelViewSet):
         поведение при обновлении записи
         """
         serializer.save(owner=self.request.user)
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
 
 '''

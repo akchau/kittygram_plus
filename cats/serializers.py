@@ -97,6 +97,7 @@ class CatSerializer(serializers.ModelSerializer):
                 'Имя не может совпадать с цветом'
             )
         return data
+        
 
 
     def get_age(self, obj):
